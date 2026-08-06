@@ -1,24 +1,23 @@
 import React from 'react';
 import { NordicSwooshConfig, NordicSwooshSize } from '../types';
 
+import logoFarbeImg from '../../public/assets/logo_farbe_2025.png';
+import logoNegativImg from '../../public/assets/logo_white_neg.svg';
+import logoGrauImg from '../../public/assets/logo_grau_2025.png';
+import kurveImg from '../../public/assets/kurve.png';
+import kurveLanglaeuferImg from '../../public/assets/kurve_langlaeufer.png';
+
 /**
  * Official Dolomiti NordicSki Brand Assets
- * Loaded strictly from the official uploaded files in /public/assets/
+ * Bundled and resolved directly via Vite asset pipeline for maximum compatibility.
  */
-const getAssetPath = (path: string) => {
-  const base = import.meta.env.BASE_URL || './';
-  const cleanBase = base.endsWith('/') ? base : `${base}/`;
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  return `${cleanBase}${cleanPath}`;
-};
-
 export const OFFICIAL_ASSET_PATHS = {
-  logoFarbe: getAssetPath('assets/logo_farbe_2025.png'),
-  logoNegativ: getAssetPath('assets/logo_white_neg.svg'),
-  logoWhiteSvg: getAssetPath('assets/logo_white_neg.svg'),
-  logoGrau: getAssetPath('assets/logo_grau_2025.png'),
-  kurve: getAssetPath('assets/kurve.png'),
-  kurveLanglaeufer: getAssetPath('assets/kurve_langlaeufer.png'),
+  logoFarbe: logoFarbeImg,
+  logoNegativ: logoNegativImg,
+  logoWhiteSvg: logoNegativImg,
+  logoGrau: logoGrauImg,
+  kurve: kurveImg,
+  kurveLanglaeufer: kurveLanglaeuferImg,
 };
 
 /**
