@@ -1,11 +1,11 @@
 import React from 'react';
 import { NordicSwooshConfig, NordicSwooshSize } from '../types';
 
-import logoFarbeImg from '../../public/assets/logo_farbe_2025.png';
-import logoNegativImg from '../../public/assets/logo_white_neg.svg';
-import logoGrauImg from '../../public/assets/logo_grau_2025.png';
-import kurveImg from '../../public/assets/kurve.png';
-import kurveLanglaeuferImg from '../../public/assets/kurve_langlaeufer.png';
+import logoFarbeImg from '../assets/logo_farbe_2025.png';
+import logoNegativImg from '../assets/logo_white_neg.svg';
+import logoGrauImg from '../assets/logo_grau_2025.png';
+import kurveImg from '../assets/kurve.png';
+import kurveLanglaeuferImg from '../assets/kurve_langlaeufer.png';
 
 /**
  * Official Dolomiti NordicSki Brand Assets
@@ -43,6 +43,7 @@ export const NordicSwooshGraphic: React.FC<{
       alt="Dolomiti NordicSki Nordic Swoosh" 
       className={`object-contain pointer-events-none select-none ${className}`}
       style={style}
+      crossOrigin="anonymous"
     />
   );
 };
@@ -69,6 +70,7 @@ export const DolomitiSkierTrackEmblem: React.FC<{
       alt="Dolomiti NordicSki Skier & Nordic Swoosh" 
       className={`object-contain ${className}`}
       style={style}
+      crossOrigin="anonymous"
     />
   );
 };
@@ -149,6 +151,7 @@ export const NordicSwooshOverlay: React.FC<{
         alt="Nordic Swoosh" 
         className={`${sizeClass} h-auto object-contain drop-shadow-xs`} 
         style={imgStyle}
+        crossOrigin="anonymous"
       />
     </div>
   );
@@ -194,6 +197,7 @@ export const DolomitiFullLogo: React.FC<{
         src={logoSrc} 
         alt="Dolomiti NordicSki Logo Ufficiale" 
         className="h-full w-auto max-h-full object-contain shrink-0" 
+        crossOrigin="anonymous"
       />
     </div>
   );
