@@ -5,13 +5,20 @@ import { NordicSwooshConfig, NordicSwooshSize } from '../types';
  * Official Dolomiti NordicSki Brand Assets
  * Loaded strictly from the official uploaded files in /public/assets/
  */
+const getAssetPath = (path: string) => {
+  const base = import.meta.env.BASE_URL || './';
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${cleanBase}${cleanPath}`;
+};
+
 export const OFFICIAL_ASSET_PATHS = {
-  logoFarbe: '/assets/logo_farbe_2025.png',
-  logoNegativ: '/assets/logo_white_neg.svg',
-  logoWhiteSvg: '/assets/logo_white_neg.svg',
-  logoGrau: '/assets/logo_grau_2025.png',
-  kurve: '/assets/kurve.png',
-  kurveLanglaeufer: '/assets/kurve_langlaeufer.png',
+  logoFarbe: getAssetPath('assets/logo_farbe_2025.png'),
+  logoNegativ: getAssetPath('assets/logo_white_neg.svg'),
+  logoWhiteSvg: getAssetPath('assets/logo_white_neg.svg'),
+  logoGrau: getAssetPath('assets/logo_grau_2025.png'),
+  kurve: getAssetPath('assets/kurve.png'),
+  kurveLanglaeufer: getAssetPath('assets/kurve_langlaeufer.png'),
 };
 
 /**
