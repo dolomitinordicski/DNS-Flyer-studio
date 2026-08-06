@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+:root {
+  /* Palette Ufficiale Dolomiti NordicSki */
+  --dns-primary: #0D4D5E; /* Ottanio Primario */
+  --dns-deep: #083845;    /* Blu Petrolio Scuro */
+  --dns-teal: #417483;    /* Ottanio Medio (Bordi) */
+  --dns-soft: #AAD0D1;    /* Azzurro Ghiaccio (Accenti) */
+  --dns-frosted: #E8F4F6; /* Ghiaccio Chiaro (Invertito) */
+  --dns-bg: #F4F9F9;      /* Bianco Neve */
+
+  /* Tipografia Alpina */
+  --font-heading: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+  --font-body: 'Roboto', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--dns-deep);
+  color: var(--dns-bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Custom font utilities */
+.font-vietnam {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.font-roboto {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Classi di utilità personalizzate */
+.bg-dns-primary { background-color: var(--dns-primary); }
+.bg-dns-deep    { background-color: var(--dns-deep); }
+.bg-dns-teal    { background-color: var(--dns-teal); }
+.bg-dns-soft    { background-color: var(--dns-soft); }
+.bg-dns-frosted { background-color: var(--dns-frosted); }
+
+.text-dns-primary { color: var(--dns-primary); }
+.text-dns-deep    { color: var(--dns-deep); }
+.text-dns-teal    { color: var(--dns-teal); }
+.text-dns-soft    { color: var(--dns-soft); }
+
+.border-dns-primary { border-color: var(--dns-primary); }
+.border-dns-deep    { border-color: var(--dns-deep); }
+.border-dns-teal    { border-color: var(--dns-teal); }
+.border-dns-soft    { border-color: var(--dns-soft); }
+
+/* Print Styles */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-area {
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    page-break-after: always;
+  }
+
+  @page {
+    margin: 0;
+    size: auto;
+  }
+}
+
+/* Custom Scrollbar for sleek interface */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #417483;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0D4D5E;
+}
+
+

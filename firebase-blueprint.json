@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "designs": {
+      "title": "Flyer Designs",
+      "description": "Saved flyer design templates and custom user creations for Dolomiti NordicSki",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Design title or package name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional brief description of the design"
+        },
+        "regionId": {
+          "type": "string",
+          "description": "Selected regional partner ID"
+        },
+        "graphicStyle": {
+          "type": "string",
+          "description": "Graphic style variant (classic_official, glacier_panorama, nordic_modern)"
+        },
+        "themeColor": {
+          "type": "string",
+          "description": "Color scheme (classic_blue, crimson_red, ice_cyan, dark_slate)"
+        },
+        "content": {
+          "type": "object",
+          "description": "Full FlyerContent state JSON"
+        },
+        "thumbnail": {
+          "type": "string",
+          "description": "Base64 or URL thumbnail preview of the design"
+        },
+        "customImages": {
+          "type": "array",
+          "description": "List of imported custom images in base64/URL format",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp when created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp when last updated"
+        }
+      },
+      "required": ["title", "content", "createdAt"]
+    }
+  }
+}

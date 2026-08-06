@@ -1,0 +1,6 @@
+{
+  "name": "Dolomiti NordicSki Flyer Generator",
+  "description": "Generatore di flyer e locandine promozionali per Dolomiti NordicSki con esportazione PDF alta risoluzione, QR code dinamici, icone sportive e branding ufficiale.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
