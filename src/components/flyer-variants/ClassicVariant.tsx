@@ -7,7 +7,8 @@ import {
   DolomitiSwooshVector,
   OFFICIAL_ASSET_PATHS 
 } from '../CorporateVectors';
-import { SPORTS_ICONS } from '../../data/sportsIcons';
+import { SPORTS_ICONS, getSportsIconName } from '../../data/sportsIcons';
+import { WireframeIcon } from '../WireframeIcon';
 
 export const ClassicVariant: React.FC<FlyerVariantProps> = ({
   content,
@@ -352,13 +353,13 @@ export const ClassicVariant: React.FC<FlyerVariantProps> = ({
                       className={`${isA5 ? 'w-6 h-6' : 'w-7 h-7 sm:w-8 sm:h-8'} rounded-full flex items-center justify-center shadow-md transition-transform group-hover:scale-110`}
                       style={theme.iconCircleStyle}
                     >
-                      {renderIcon(icon!.lucideIconName, isA5 ? 'w-3 h-3' : 'w-3.5 h-3.5 sm:w-4 sm:h-4')}
+                      <WireframeIcon icon={icon} className={isA5 ? 'w-3 h-3' : 'w-3.5 h-3.5 sm:w-4 sm:h-4'} />
                     </div>
                     <span 
                       className="text-[8px] sm:text-[9px] font-black font-vietnam uppercase tracking-tighter line-clamp-1"
                       style={{ color: theme.textColorHex }}
                     >
-                      {icon!.name}
+                      {getSportsIconName(icon!, content.language || 'it')}
                     </span>
                   </div>
                 ))}

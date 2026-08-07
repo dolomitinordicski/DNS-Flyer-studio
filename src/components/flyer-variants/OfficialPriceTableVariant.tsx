@@ -8,6 +8,8 @@ import {
   DolomitiNordicSkiLogo,
   OFFICIAL_ASSET_PATHS 
 } from '../CorporateVectors';
+import { WireframeIcon } from '../WireframeIcon';
+import { getSportsIconName } from '../../data/sportsIcons';
 
 export const OfficialPriceTableVariant: React.FC<FlyerVariantProps> = ({
   content,
@@ -404,15 +406,14 @@ export const OfficialPriceTableVariant: React.FC<FlyerVariantProps> = ({
                       <div className="flex items-center gap-1 flex-wrap">
                         {activeSportsIcons.slice(0, isA5 ? 3 : 5).map((icon) => {
                           if (!icon) return null;
-                          const IconComponent = (LucideIcons as any)[icon.iconName] || LucideIcons.Activity;
                           return (
                             <div 
                               key={icon.id}
                               className={`flex items-center gap-1 bg-slate-50 border border-slate-200 rounded ${isA3 ? 'px-2 py-0.5 text-xs' : 'px-1 py-0.5 text-[7px]'} font-bold`}
                               style={{ color: activeColors.primary }}
                             >
-                              <IconComponent className={`${isA3 ? 'w-3.5 h-3.5' : 'w-2.5 h-2.5'} shrink-0`} style={{ color: activeColors.primary }} />
-                              <span className="truncate max-w-[80px]">{icon.name}</span>
+                              <WireframeIcon icon={icon} className={`${isA3 ? 'w-3.5 h-3.5' : 'w-2.5 h-2.5'} shrink-0`} style={{ color: activeColors.primary }} />
+                              <span className="truncate max-w-[80px]">{getSportsIconName(icon, content.language || 'it')}</span>
                             </div>
                           );
                         })}
@@ -457,15 +458,17 @@ export const OfficialPriceTableVariant: React.FC<FlyerVariantProps> = ({
             );
 
           case 'disclaimer':
-            return (
-              visibility.disclaimer && (
-                <div key="disclaimer" className={`${isA3 ? 'text-xs leading-relaxed p-2.5' : 'text-[6.5px] leading-[1.1] p-1'} ${isBackground ? 'bg-black/40 text-slate-200' : 'bg-white/50 text-slate-500'} backdrop-blur-xs rounded-lg border ${isBackground ? 'border-white/10' : 'border-slate-200/50'} space-y-0.5 shrink-0 w-full`}>
-                  <div className="line-clamp-1"><strong>DE:</strong> {plt.disclaimerDe}</div>
-                  <div className="line-clamp-1"><strong>IT:</strong> {plt.disclaimerIt}</div>
-                  <div className="line-clamp-1"><strong>EN:</strong> {plt.disclaimerEn}</div>
-                </div>
-              )
-            );
+            {
+              const activeLang = content.activeLanguage || content.language || 'it';
+              const singleDisclaimer = activeLang === 'de' ? plt.disclaimerDe : activeLang === 'en' ? plt.disclaimerEn : plt.disclaimerIt;
+              return (
+                visibility.disclaimer && singleDisclaimer && (
+                  <div key="disclaimer" className={`${isA3 ? 'text-xs leading-relaxed p-2.5' : 'text-[7.5px] leading-tight p-1.5'} ${isBackground ? 'bg-black/40 text-slate-200' : 'bg-white/50 text-slate-600'} backdrop-blur-xs rounded-lg border ${isBackground ? 'border-white/10' : 'border-slate-200/50'} shrink-0 w-full font-medium`}>
+                    <div className="line-clamp-2">{singleDisclaimer}</div>
+                  </div>
+                )
+              );
+            }
 
           default:
             return null;

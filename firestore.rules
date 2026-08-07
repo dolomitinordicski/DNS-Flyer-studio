@@ -4,5 +4,11 @@ service cloud.firestore {
     match /designs/{designId} {
       allow read, write: if true;
     }
+    match /flyer_registry/{recordId} {
+      allow read, write: if true;
+    }
+    match /custom_icons/{iconId} {
+      allow read, write: if true;
+    }
   }
 }

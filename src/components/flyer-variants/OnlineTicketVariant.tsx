@@ -1,13 +1,16 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { FlyerVariantProps } from './VariantTypes';
-import { DolomitiNordicSkiLogo, DolomitiSkierTrackEmblem } from '../CorporateVectors';
+import { DolomitiNordicSkiLogo, DolomitiSkierTrackEmblem, OFFICIAL_ASSET_PATHS } from '../CorporateVectors';
+import { WireframeIcon } from '../WireframeIcon';
+import { getSportsIconName } from '../../data/sportsIcons';
 
 export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
   content,
   plt,
   theme,
   regionLogo,
+  activeSportsIcons = [],
   visibility
 }) => {
   const fmt = content.format || 'A4';
@@ -15,18 +18,41 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
   const isA3 = fmt === 'A3';
   const isLandscape = content.orientation === 'landscape';
 
+  const lang = content.activeLanguage || content.language || 'it';
+
   // Dynamic spacing and font sizes
   const paddingClass = isA5 ? 'p-3 sm:p-4' : 'p-5 sm:p-7';
   const mainGap = isA5 ? 'gap-2.5' : 'gap-4';
 
   const titleSize = isA5 ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl';
   const priceSize = isA5 ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl';
-  const qrSize = isA5 ? 64 : 85;
+  const qrSize = isA5 ? 85 : 105;
 
   // Serial ticket code placeholder
   const ticketSerial = content.addressInfo?.includes('Ticket ID')
     ? content.addressInfo
     : `TICKET ID: #TK-2026-DNS-${Math.floor(10000 + Math.random() * 90000)}`;
+
+  // Validity Title localized
+  const validityTitle = lang === 'de' 
+    ? 'GÜLTIGKEIT DES TICKETS' 
+    : lang === 'en' 
+    ? 'TICKET VALIDITY' 
+    : 'VALIDITÀ DEL BIGLIETTO';
+
+  // Single-language disclaimer selection
+  const disclaimerText = lang === 'de' 
+    ? plt.disclaimerDe 
+    : lang === 'en' 
+    ? plt.disclaimerEn 
+    : plt.disclaimerIt;
+
+  // Turnstile instructions localized
+  const turnstileText = lang === 'de'
+    ? 'Anweisungen am Drehkreuz: QR-Code an den optischen Leser des Drehkreuzes halten, um den Zugang zu entwerten.'
+    : lang === 'en'
+    ? 'Turnstile instructions: Hold the QR Code to the optical scanner at the access gates to validate access.'
+    : 'Istruzioni ai varchi: Accostare il QR Code al lettore ottico dei tornelli per convalidare l\'accesso alle piste.';
 
   return (
     <div 
@@ -51,11 +77,11 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
 
           <div className="flex items-center justify-between gap-3 min-w-0 relative z-10">
             <div className="space-y-0.5 min-w-0 flex-1">
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#AAD0D1] block truncate">
-                {content.headerTagline || 'DIGITAL PASS'}
+              <span className="text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-widest text-[#AAD0D1] block truncate">
+                DIGITAL PASS
               </span>
               <h1 className={`${titleSize} font-black tracking-tight leading-none text-white font-vietnam uppercase break-words`}>
-                {content.title || 'BIGLIETTO ONLINE'}
+                {content.title || 'BIGLIETTO GIORNALIERO'}
               </h1>
               <p className="text-[10px] sm:text-[11px] text-slate-200 font-bold tracking-tight truncate">
                 {content.subtitle || 'Dolomiti NordicSki - Cross Country Ski Ticket'}
@@ -66,11 +92,10 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
               {regionLogo && regionLogo.id !== 'dns_central' && (
                 <div className="bg-white/90 p-1.5 rounded-xl shadow-xs border border-white/20 shrink-0">
                   <img
-                    src={regionLogo.logoSrc || `https://www.dolomitinordicski.com/images/logos/${regionLogo.id}.png`}
+                    src={regionLogo.logoSrc || OFFICIAL_ASSET_PATHS.logoFarbe}
                     alt={regionLogo.name}
                     className="h-8 sm:h-10 object-contain max-w-[80px]"
                     onError={(e) => {
-                      // Fallback text if logo missing
                       (e.target as HTMLElement).style.display = 'none';
                     }}
                   />
@@ -88,12 +113,12 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
           <div className="flex items-center justify-between pt-2 border-t border-white/15 text-[9.5px] sm:text-[10.5px] font-extrabold uppercase tracking-wider text-slate-100 relative z-10">
             <div className="flex items-center gap-2 truncate">
               <span className="px-2 py-0.5 rounded-md bg-[#AAD0D1] text-[#0D4D5E] font-black shadow-2xs">
-                {content.badgeText || 'TICKET UFFICIALE'}
+                DIGITAL PASS
               </span>
-              <span className="truncate">{content.location || 'Dolomiti NordicSki'}</span>
+              <span className="truncate">{regionLogo?.regionName || content.location || 'Dolomiti NordicSki'}</span>
             </div>
             <div className="text-right text-[#AAD0D1] font-black shrink-0 ml-2">
-              STAGIONE {content.validityPeriod || '2026/27'}
+              SEASON {content.validityPeriod || '2026/27'}
             </div>
           </div>
         </div>
@@ -110,7 +135,7 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
         </div>
       )}
 
-      {/* 2. MAIN TICKET COUPON & BARCODE SCANNER BLOCK */}
+      {/* 2. MAIN TICKET COUPON & HOLDER / SCANNER BLOCK */}
       <div className="flex-1 flex flex-col justify-between gap-3 min-h-0">
         
         {/* Ticket Coupon Card */}
@@ -119,32 +144,32 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
             className="rounded-2xl border-2 p-3.5 sm:p-4 shadow-md space-y-3 relative overflow-hidden"
             style={{ backgroundColor: theme.bgHex, borderColor: `${theme.primaryHex}40` }}
           >
-            {/* Dashed cut line styling */}
+            {/* Cut line & Tagline */}
             <div className="flex items-center justify-between gap-2 border-b-2 border-dashed pb-2.5" style={{ borderColor: `${theme.primaryHex}30` }}>
               <div className="space-y-0.5 min-w-0">
                 <div className="text-[9px] font-black uppercase text-slate-400 tracking-widest">
-                  TITOLO DI VIAGGIO DI STAMPA / BASE TICKET PRINT
+                  DIGITAL PASS • {regionLogo?.regionName || 'Dolomiti NordicSki'}
                 </div>
                 <div className="text-xs sm:text-sm font-black uppercase tracking-tight" style={{ color: theme.primaryHex }}>
-                  {content.location || 'Dolomiti NordicSki Area'}
+                  {regionLogo?.regionName || content.location || 'Dolomiti NordicSki Area'}
                 </div>
               </div>
 
               <div className="text-right shrink-0">
                 <span className="text-[8.5px] font-black uppercase px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 tracking-wider">
-                  {content.pricePrefix || 'TARIFFA'}: {content.priceAmount} {content.priceCurrency}
+                  {content.pricePrefix || 'PRICE'}: {content.priceAmount} {content.priceCurrency}
                 </span>
               </div>
             </div>
 
-            {/* Price & QR Scanner Grid */}
+            {/* Price, Holder Info & Enlarged QR Grid */}
             <div className="grid grid-cols-12 gap-3 items-center">
               
-              {/* Left Details */}
+              {/* Left Ticket Details & Holder Information */}
               <div className="col-span-7 space-y-2">
                 <div>
                   <div className="text-[9px] font-black uppercase text-slate-400 tracking-wider">
-                    TIPOLOGIA & VALIDA PER:
+                    TICKET DETAILS:
                   </div>
                   <div className="text-sm sm:text-base font-black text-slate-900 leading-tight">
                     {content.title}
@@ -154,21 +179,30 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
                   </p>
                 </div>
 
-                <div className="p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs space-y-1">
-                  <div className="flex items-center justify-between text-[9px] font-black uppercase text-slate-500">
-                    <span>Codice Seriale Ticket:</span>
-                    <span className="text-[#0D4D5E] font-black">{ticketSerial}</span>
+                {/* Holder Name & Issue Date Fields */}
+                <div className="p-2.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs space-y-1.5">
+                  <div className="grid grid-cols-2 gap-2 text-[9.5px]">
+                    <div>
+                      <span className="text-slate-400 font-bold uppercase text-[8px] block">Nome e Cognome / Holder:</span>
+                      <span className="font-extrabold text-slate-900 block truncate">{content.holderName || 'Mario Rossi'}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold uppercase text-[8px] block">Data Emissione / Issued:</span>
+                      <span className="font-extrabold text-slate-900 block truncate">{content.issueDate || '15.12.2026'}</span>
+                    </div>
                   </div>
-                  <div className="text-[8.5px] text-slate-500 font-bold italic line-clamp-2">
-                    {content.priceNote || 'Presentare questo documento ai varchi d\'accesso o ai controllori in pista.'}
+
+                  <div className="pt-1 border-t border-slate-100 flex items-center justify-between text-[9px] font-black uppercase">
+                    <span className="text-slate-500">Serial Code:</span>
+                    <span className="text-[#0D4D5E] font-black">{ticketSerial}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Right QR Code & Barcode Block */}
-              <div className="col-span-5 bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200 flex flex-col items-center justify-center text-center shadow-sm">
+              {/* Right Enlarged QR Code Block (Barcode removed) */}
+              <div className="col-span-5 bg-white p-3 rounded-xl border border-slate-200 flex flex-col items-center justify-center text-center shadow-sm">
                 {visibility.qrCode && content.qrCode.enabled && (
-                  <div className="p-1.5 bg-white rounded-lg border border-slate-100 shadow-xs mb-1.5">
+                  <div className="p-2 bg-white rounded-xl border border-slate-200 shadow-xs">
                     <QRCodeSVG 
                       value={content.qrCode.url || 'https://www.dolomitinordicski.com'} 
                       size={qrSize} 
@@ -177,19 +211,8 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
                   </div>
                 )}
 
-                {/* Simulated 1D Barcode Graphic */}
-                <div className="w-full flex justify-between items-center h-5 px-1 py-0.5 bg-slate-900 rounded my-1 opacity-90 overflow-hidden">
-                  {[4, 2, 6, 1, 3, 5, 2, 4, 1, 6, 3, 2, 5, 1, 4, 2, 6, 3, 1, 5, 2, 4].map((w, i) => (
-                    <div 
-                      key={i} 
-                      className="bg-white h-full" 
-                      style={{ width: `${w}px` }} 
-                    />
-                  ))}
-                </div>
-
-                <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-0.5">
-                  VARCO / TURNSTILE SCAN
+                <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-2">
+                  TURNSTILE SCAN
                 </div>
               </div>
 
@@ -197,7 +220,7 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
           </div>
         )}
 
-        {/* 3. TICKET SPECIFICATIONS & FEATURES LIST */}
+        {/* 3. TICKET SPECIFICATIONS & VERIFICATION SUMMARY */}
         <div className="grid grid-cols-12 gap-3 min-h-0 flex-1">
           
           {/* Key Ticket Conditions / Inclusions */}
@@ -205,7 +228,7 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
             <div>
               <h3 className="text-[10.5px] sm:text-[11.5px] font-black uppercase tracking-wider text-[#0D4D5E] font-vietnam flex items-center gap-1.5">
                 <span>📋</span>
-                <span>{content.featuresTitle || 'Specifiche & Condizioni Ticket:'}</span>
+                <span>{content.featuresTitle || 'SPECIFICATIONS & CONDITIONS:'}</span>
               </h3>
 
               <div className="mt-2 space-y-1.5">
@@ -229,40 +252,60 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
             <div className="p-2 bg-slate-100/80 rounded-xl border border-slate-200 text-[9px] text-slate-600 font-bold flex items-center gap-2">
               <span className="text-base shrink-0">🎫</span>
               <span className="leading-tight">
-                <strong>Istruzioni ai varchi:</strong> Accostare il QR Code o Barcode al lettore ottico dei tornelli per convalidare l'accesso alle piste.
+                {turnstileText}
               </span>
             </div>
+
+            {/* Selected Sports & Services Icons Strip */}
+            {activeSportsIcons.length > 0 && (
+              <div className="p-2 bg-slate-50 rounded-xl border border-slate-200/90 space-y-1">
+                <div className="text-[8.5px] font-black uppercase text-slate-500 tracking-wider flex items-center justify-between">
+                  <span>ACTIVE SERVICES & SPORTS:</span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {activeSportsIcons.map((icon) => (
+                    <div 
+                      key={icon.id}
+                      className="flex items-center gap-1.5 px-2 py-0.5 bg-white rounded-lg border border-slate-200 text-[9px] font-extrabold text-[#0D4D5E] shadow-2xs"
+                    >
+                      <WireframeIcon icon={icon} className="w-3 h-3 text-[#0D4D5E]" />
+                      <span className="truncate max-w-[100px]">{getSportsIconName(icon, lang)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Right Summary Table Box */}
+          {/* Right Summary Table Box with Region Issuer & Validity */}
           <div className="col-span-5 bg-slate-50 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2 flex flex-col justify-between min-w-0">
             <div>
               <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500 font-vietnam">
-                DATI VERIFICA TICKET:
+                TICKET VERIFICATION & ISSUER:
               </h3>
 
               <div className="mt-2 space-y-2 text-[10px] font-bold text-slate-700">
                 <div className="flex justify-between pb-1 border-b border-slate-200">
-                  <span className="text-slate-500">Rete:</span>
-                  <span className="font-black text-[#0D4D5E]">Dolomiti NordicSki</span>
+                  <span className="text-slate-500">Emettitore / Issuer:</span>
+                  <span className="font-black text-[#0D4D5E] truncate max-w-[120px]">{regionLogo?.regionName || '3 Zinnen Dolomites / 3 Cime Dolomiti'}</span>
                 </div>
                 <div className="flex justify-between pb-1 border-b border-slate-200">
-                  <span className="text-slate-500">Validità:</span>
+                  <span className="text-slate-500">{validityTitle}:</span>
                   <span className="font-black text-slate-900">{content.validityPeriod}</span>
                 </div>
                 <div className="flex justify-between pb-1 border-b border-slate-200">
-                  <span className="text-slate-500">Stato Ticket:</span>
-                  <span className="font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">VALIDO</span>
+                  <span className="text-slate-500">Status:</span>
+                  <span className="font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">VALID</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Info / Help:</span>
-                  <span className="font-bold text-slate-800">{content.contactPhone || content.contactEmail}</span>
+                  <span className="text-slate-500">Help / Contact:</span>
+                  <span className="font-bold text-slate-800 truncate max-w-[120px]">{content.contactPhone || content.contactEmail || 'info@dolomitinordicski.com'}</span>
                 </div>
               </div>
             </div>
 
             <div className="p-2 bg-white rounded-xl border border-slate-200 text-[8.5px] text-slate-500 font-bold text-center">
-              Base grafica non modificabile per la stampa del biglietto online.
+              Official Digital Pass layout issued by {regionLogo?.regionName || 'Regional Area'}.
             </div>
           </div>
 
@@ -270,19 +313,17 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
 
       </div>
 
-      {/* 4. OFFICIAL LEGAL DISCLAIMER (TRILINGUAL) */}
-      {visibility.disclaimer && (
-        <div className="p-2 sm:p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[8px] sm:text-[9px] text-slate-600 space-y-0.5 leading-tight font-bold shrink-0 shadow-inner">
-          <p className="line-clamp-1"><strong>DE:</strong> {plt.disclaimerDe}</p>
-          <p className="line-clamp-1"><strong>IT:</strong> {plt.disclaimerIt}</p>
-          <p className="line-clamp-1"><strong>EN:</strong> {plt.disclaimerEn}</p>
+      {/* 4. OFFICIAL LEGAL DISCLAIMER (SINGLE-LANGUAGE ONLY) */}
+      {visibility.disclaimer && disclaimerText && (
+        <div className="p-2 sm:p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[8.5px] sm:text-[9.5px] text-slate-600 leading-tight font-bold shrink-0 shadow-inner">
+          <p className="line-clamp-2">{disclaimerText}</p>
         </div>
       )}
 
-      {/* 5. FOOTER */}
+      {/* 5. FOOTER (REGIONAL ISSUER CONTACTS) */}
       {visibility.footer && (
         <div className="pt-1.5 border-t flex items-center justify-between text-[8.5px] sm:text-[9.5px] text-slate-500 font-black uppercase tracking-widest shrink-0" style={{ borderColor: `${theme.primaryHex}30` }}>
-          <div className="truncate min-w-0">{content.addressInfo || 'Consorzio Dolomiti NordicSki'}</div>
+          <div className="truncate min-w-0">EMETTITORE: {regionLogo?.regionName || 'Regional Area Partner'}</div>
           <div className="font-black shrink-0 ml-2" style={{ color: theme.primaryHex }}>{content.websiteUrl || 'www.dolomitinordicski.com'}</div>
         </div>
       )}

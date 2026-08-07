@@ -392,12 +392,12 @@ export const FLYER_TEMPLATES: FlyerTemplate[] = [
   {
     id: 'ticket_online_daily',
     name: '7. Biglietto Stampa - Giornaliero',
-    tagline: 'TICKET ONLINE • GIORNALIERO',
+    tagline: 'DIGITAL PASS • GIORNALIERO',
     description: 'Template di stampa per il biglietto giornaliero acquistato online. Stile grafico manifesto monolingua per la base del biglietto di stampa.',
     previewColor: '#0D4D5E',
     defaultContent: {
       regionId: '3_zinnen',
-      headerTagline: 'ONLINE TICKET • BIGLIETTO DIGITALE • ONLINE-TICKET',
+      headerTagline: 'DIGITAL PASS',
       badgeText: 'BIGLIETTO GIORNALIERO UFFICIALE',
       title: 'BIGLIETTO GIORNALIERO',
       subtitle: 'Valido 1 Giorno sulle piste da fondo dell\'area selezionata',
@@ -449,12 +449,12 @@ export const FLYER_TEMPLATES: FlyerTemplate[] = [
   {
     id: 'ticket_online_weekly_area',
     name: '8. Biglietto Stampa - Settimanale di Area',
-    tagline: 'TICKET ONLINE • SETTIMANALE AREA',
+    tagline: 'DIGITAL PASS • SETTIMANALE AREA',
     description: 'Template di stampa per il biglietto settimanale 7 giorni di singola area. Stile grafico manifesto monolingua per la base del biglietto di stampa.',
     previewColor: '#417483',
     defaultContent: {
       regionId: 'anterselva',
-      headerTagline: 'ONLINE TICKET • BIGLIETTO DIGITALE • ONLINE-TICKET',
+      headerTagline: 'DIGITAL PASS',
       badgeText: 'BIGLIETTO SETTIMANALE AREA 7 GIORNI',
       title: 'SETTIMANALE DI AREA',
       subtitle: 'Valido 7 Giorni consecutivi nella singola area di fondo selezionata',
@@ -506,12 +506,12 @@ export const FLYER_TEMPLATES: FlyerTemplate[] = [
   {
     id: 'ticket_online_weekly_dns',
     name: '9. Biglietto Stampa - Settimanale DNS Carosello',
-    tagline: 'TICKET ONLINE • SETTIMANALE CAROSELLO',
+    tagline: 'DIGITAL PASS • SETTIMANALE CAROSELLO',
     description: 'Template di stampa per il biglietto settimanale Carosello Dolomiti NordicSki (900+ km / 8 Valli). Stile grafico manifesto monolingua.',
     previewColor: '#0D4D5E',
     defaultContent: {
       regionId: 'dns_central',
-      headerTagline: 'ONLINE TICKET • BIGLIETTO DIGITALE • ONLINE-TICKET',
+      headerTagline: 'DIGITAL PASS',
       badgeText: 'PASS CAROSELLO DOLOMITI NORDICSKI 900+ KM',
       title: 'SETTIMANALE DOLOMITI NORDICSKI',
       subtitle: 'Valido 7 Giorni consecutivi su tutte le 8 Aree del Carosello Dolomiti NordicSki',

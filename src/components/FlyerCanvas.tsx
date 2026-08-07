@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { FlyerContent } from '../types';
 import { REGIONAL_LOGOS } from '../data/regionalLogos';
-import { SPORTS_ICONS } from '../data/sportsIcons';
+import { SPORTS_ICONS, getAllSportsIcons } from '../data/sportsIcons';
 import { DEFAULT_PRICE_LIST_TEXTS } from '../data/templates';
 import { 
   DolomitiSkierTrackEmblem, 
@@ -25,9 +25,10 @@ export const FlyerCanvas = forwardRef<HTMLDivElement, FlyerCanvasProps>(({ conte
   // Selected regional logo info
   const regionLogo = REGIONAL_LOGOS.find(r => r.id === content.regionId) || REGIONAL_LOGOS[0];
 
-  // Map selected sports icons
+  // Map selected sports icons (standard + custom)
+  const allIcons = getAllSportsIcons();
   const activeSportsIcons = content.selectedSportsIcons
-    .map(iconId => SPORTS_ICONS.find(s => s.id === iconId))
+    .map(iconId => allIcons.find(s => s.id === iconId))
     .filter(Boolean);
 
   // Graphic Style choice

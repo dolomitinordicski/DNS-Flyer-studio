@@ -43,7 +43,6 @@ export const NordicSwooshGraphic: React.FC<{
       alt="Dolomiti NordicSki Nordic Swoosh" 
       className={`object-contain pointer-events-none select-none ${className}`}
       style={style}
-      crossOrigin="anonymous"
     />
   );
 };
@@ -70,7 +69,6 @@ export const DolomitiSkierTrackEmblem: React.FC<{
       alt="Dolomiti NordicSki Skier & Nordic Swoosh" 
       className={`object-contain ${className}`}
       style={style}
-      crossOrigin="anonymous"
     />
   );
 };
@@ -151,7 +149,6 @@ export const NordicSwooshOverlay: React.FC<{
         alt="Nordic Swoosh" 
         className={`${sizeClass} h-auto object-contain drop-shadow-xs`} 
         style={imgStyle}
-        crossOrigin="anonymous"
       />
     </div>
   );
@@ -197,7 +194,6 @@ export const DolomitiFullLogo: React.FC<{
         src={logoSrc} 
         alt="Dolomiti NordicSki Logo Ufficiale" 
         className="h-full w-auto max-h-full object-contain shrink-0" 
-        crossOrigin="anonymous"
       />
     </div>
   );

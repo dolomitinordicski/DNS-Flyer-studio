@@ -35,12 +35,21 @@ import {
   Maximize2,
   Square
 } from 'lucide-react';
-import { FlyerContent, LayoutTemplateId, BrandColorScheme, PaperFormat, GraphicStyle, FlyerSectionId, LanguageCode, MultilingualTextSet } from '../types';
+import { FlyerContent, LayoutTemplateId, BrandColorScheme, PaperFormat, GraphicStyle, FlyerSectionId, LanguageCode, MultilingualTextSet, SportsIcon } from '../types';
 import { FLYER_TEMPLATES, DEFAULT_PRICE_LIST_TEXTS } from '../data/templates';
 import { REGIONAL_LOGOS } from '../data/regionalLogos';
-import { SPORTS_ICONS } from '../data/sportsIcons';
+import { SPORTS_ICONS, getSportsIconName, getAllSportsIcons } from '../data/sportsIcons';
 import { DolomitiSkierTrackEmblem, OFFICIAL_ASSET_PATHS } from './CorporateVectors';
-import { saveDesignToFirebase, loadDesignsFromFirebase, deleteDesignFromFirebase, SavedDesign } from '../lib/firebase';
+import { WireframeIcon } from './WireframeIcon';
+import { 
+  saveDesignToFirebase, 
+  loadDesignsFromFirebase, 
+  deleteDesignFromFirebase, 
+  SavedDesign,
+  loadCustomIconsFromFirebase,
+  saveCustomIconToFirebase,
+  deleteCustomIconFromFirebase
+} from '../lib/firebase';
 import { DEFAULT_SECTION_ORDER } from './flyer-variants/VariantTypes';
 import { LANGUAGE_OPTIONS, getInitialTranslations, getContentForLanguage } from '../utils/multilingual';
 
@@ -92,9 +101,19 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
   const [isSavingToFirebase, setIsSavingToFirebase] = useState(false);
   const [saveToast, setSaveToast] = useState<string | null>(null);
 
-  // Fetch saved designs from Firebase Firestore on mount
+  // Custom Icons state from Firestore
+  const [customFirestoreIcons, setCustomFirestoreIcons] = useState<SportsIcon[]>([]);
+  const [isUploadingCustomIcon, setIsUploadingCustomIcon] = useState(false);
+  const [newIconName, setNewIconName] = useState('');
+  const [newIconCategory, setNewIconCategory] = useState<'Nordic Skiing' | 'Services' | 'Accommodation' | 'Events' | 'Custom'>('Custom');
+  const [newIconImageBase64, setNewIconImageBase64] = useState<string>('');
+  const [iconToast, setIconToast] = useState<string | null>(null);
+  const customIconFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch saved designs and custom icons from Firebase Firestore on mount
   useEffect(() => {
     fetchSavedModels();
+    fetchCustomIcons();
   }, []);
 
   const fetchSavedModels = async () => {
@@ -103,6 +122,84 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
       setFirebaseSavedModels(items);
     } catch (err) {
       console.error('Error fetching Firebase models:', err);
+    }
+  };
+
+  const fetchCustomIcons = async () => {
+    try {
+      const items = await loadCustomIconsFromFirebase();
+      setCustomFirestoreIcons(items);
+    } catch (err) {
+      console.error('Error fetching Firestore custom icons:', err);
+    }
+  };
+
+  const handleCustomIconFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setNewIconImageBase64(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveCustomIcon = async () => {
+    if (!newIconName.trim()) {
+      alert('Inserisci un nome per l\'icona.');
+      return;
+    }
+    if (!newIconImageBase64) {
+      alert('Seleziona un\'immagine o simbolo icona dal PC.');
+      return;
+    }
+
+    setIsUploadingCustomIcon(true);
+    try {
+      const created = await saveCustomIconToFirebase({
+        name: newIconName.trim(),
+        nameIt: newIconName.trim(),
+        category: newIconCategory,
+        lucideIconName: 'Sparkles',
+        customIconUrl: newIconImageBase64,
+        isCustom: true
+      });
+
+      setCustomFirestoreIcons(prev => [created, ...prev]);
+      if (!content.selectedSportsIcons.includes(created.id)) {
+        onChangeContent({
+          selectedSportsIcons: [...content.selectedSportsIcons, created.id]
+        });
+      }
+
+      setNewIconName('');
+      setNewIconImageBase64('');
+      if (customIconFileInputRef.current) customIconFileInputRef.current.value = '';
+
+      setIconToast('Nuova icona aggiunta al Database Firestore!');
+      setTimeout(() => setIconToast(null), 4000);
+    } catch (err) {
+      console.error('Save custom icon failed:', err);
+      alert('Errore durante il salvataggio dell\'icona in Firestore.');
+    } finally {
+      setIsUploadingCustomIcon(false);
+    }
+  };
+
+  const handleDeleteCustomIcon = async (iconId: string) => {
+    if (!confirm('Eliminare questa icona dal database Firestore?')) return;
+    try {
+      await deleteCustomIconFromFirebase(iconId);
+      setCustomFirestoreIcons(prev => prev.filter(i => i.id !== iconId));
+      if (content.selectedSportsIcons.includes(iconId)) {
+        onChangeContent({
+          selectedSportsIcons: content.selectedSportsIcons.filter(id => id !== iconId)
+        });
+      }
+    } catch (err) {
+      console.error('Delete custom icon failed:', err);
     }
   };
 
@@ -1828,6 +1925,30 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
                     className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900"
                   />
                 </div>
+                
+                {/* Holder Name & Issue Date (For Digital Pass / Online Tickets) */}
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/80">
+                  <div>
+                    <label className="block text-slate-500 mb-1 font-semibold">Nome e Cognome Titolare</label>
+                    <input
+                      type="text"
+                      value={content.holderName || ''}
+                      onChange={(e) => updateLangField('holderName', e.target.value)}
+                      placeholder="es. Mario Rossi"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-500 mb-1 font-semibold">Data di Emissione</label>
+                    <input
+                      type="text"
+                      value={content.issueDate || ''}
+                      onChange={(e) => updateLangField('issueDate', e.target.value)}
+                      placeholder="es. 15.12.2026"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 font-medium"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Features List (Multilingual Offer Rows) */}
@@ -2741,38 +2862,184 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
         {activeTab === 'icons' && (
           <div className="space-y-4 text-xs">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 font-vietnam flex items-center gap-2">
-                <Dumbbell className="w-4 h-4 text-[#0D4D5E]" />
-                Libreria Icone Sportive Vettoriali
+              <h3 className="text-sm font-bold text-slate-900 font-vietnam flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4 text-[#0D4D5E]" />
+                  Libreria Icone Sportive & Simboli Wireframe
+                </span>
+                <span className="text-[10px] font-extrabold text-[#0D4D5E] bg-[#0D4D5E]/10 px-2 py-0.5 rounded-full">
+                  {content.selectedSportsIcons.length}/6 Selezionate
+                </span>
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                Seleziona fino a 6 icone sportive per evidenziare le discipline e i servizi del pacchetto.
+                Seleziona le icone per i biglietti e listini. I testi cambiano automaticamente nella lingua prescelta ({content.language?.toUpperCase() || 'IT'}).
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              {SPORTS_ICONS.map((icon) => {
-                const isSelected = content.selectedSportsIcons.includes(icon.id);
-                return (
-                  <div
-                    key={icon.id}
-                    onClick={() => handleToggleSportsIcon(icon.id)}
-                    className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-start gap-2 ${
-                      isSelected
-                        ? 'bg-[#0D4D5E] border-[#0D4D5E] text-white shadow-xs'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className={`p-1 rounded-lg shrink-0 ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#0D4D5E]'}`}>
-                      <Check className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <div className={`font-bold text-[11px] font-vietnam leading-tight ${isSelected ? 'text-white' : 'text-slate-900'}`}>{icon.name}</div>
-                      <div className={`text-[9px] mt-0.5 line-clamp-1 ${isSelected ? 'text-slate-200' : 'text-slate-500'}`}>{icon.category}</div>
-                    </div>
+            {/* Notification Toast */}
+            {iconToast && (
+              <div className="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-bold flex items-center gap-2 text-xs">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{iconToast}</span>
+              </div>
+            )}
+
+            {/* Upload New Custom Icon Box */}
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+              <div className="font-extrabold text-slate-900 flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5">
+                  <Upload className="w-4 h-4 text-[#0D4D5E]" />
+                  Aggiungi Icona dal PC (Database Firestore)
+                </span>
+                <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                  Firestore DB
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                <div>
+                  <label className="text-[10px] font-bold text-slate-600 uppercase block mb-1">
+                    Nome dell'Icona / Servizio:
+                  </label>
+                  <input
+                    type="text"
+                    value={newIconName}
+                    onChange={(e) => setNewIconName(e.target.value)}
+                    placeholder="es. Pista Notturna VIP, Skibus Dedicato..."
+                    className="w-full px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0D4D5E]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-600 uppercase block mb-1">
+                      Categoria:
+                    </label>
+                    <select
+                      value={newIconCategory}
+                      onChange={(e) => setNewIconCategory(e.target.value as any)}
+                      className="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0D4D5E]"
+                    >
+                      <option value="Nordic Skiing">Nordic Skiing</option>
+                      <option value="Services">Services</option>
+                      <option value="Accommodation">Accommodation</option>
+                      <option value="Events">Events</option>
+                      <option value="Custom">Custom</option>
+                    </select>
                   </div>
-                );
-              })}
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-600 uppercase block mb-1">
+                      File Immagine / Simbolo:
+                    </label>
+                    <input
+                      type="file"
+                      ref={customIconFileInputRef}
+                      accept="image/*"
+                      onChange={handleCustomIconFileChange}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => customIconFileInputRef.current?.click()}
+                      className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-700 hover:bg-slate-100 flex items-center justify-center gap-1.5 truncate"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-[#0D4D5E]" />
+                      <span className="truncate">{newIconImageBase64 ? 'Cambia File...' : 'Scegli File'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {newIconImageBase64 && (
+                  <div className="flex items-center gap-2 p-2 bg-white rounded-xl border border-slate-200">
+                    <img src={newIconImageBase64} alt="Anteprima" className="w-8 h-8 object-contain rounded border p-0.5" />
+                    <span className="text-[10px] font-bold text-emerald-700">Simbolo caricato pronto per il salvataggio</span>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleSaveCustomIcon}
+                  disabled={isUploadingCustomIcon}
+                  className="w-full py-2 px-3 bg-[#0D4D5E] hover:bg-[#072F3A] text-white font-extrabold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{isUploadingCustomIcon ? 'Salvataggio in Firestore...' : 'Salva Nuova Icona nel Database Firestore'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Icons Grid with Wireframe Symbols and Localized Names */}
+            <div>
+              <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">
+                Scegli e Attiva Icone Vettoriali:
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {(() => {
+                  const combined = getAllSportsIcons(customFirestoreIcons);
+                  return combined.map((icon) => {
+                    const isSelected = content.selectedSportsIcons.includes(icon.id);
+                    const localizedName = getSportsIconName(icon, content.language || 'it');
+                    return (
+                      <div
+                        key={icon.id}
+                        onClick={() => handleToggleSportsIcon(icon.id)}
+                        className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 relative group ${
+                          isSelected
+                            ? 'bg-[#0D4D5E] border-[#0D4D5E] text-white shadow-xs'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        {/* Wireframe symbol preview */}
+                        <div className={`p-2 rounded-xl shrink-0 flex items-center justify-center ${
+                          isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-[#0D4D5E]'
+                        }`}>
+                          <WireframeIcon icon={icon} className="w-5 h-5" />
+                        </div>
+
+                        <div className="min-w-0 flex-1 pr-4">
+                          <div className={`font-bold text-[11px] font-vietnam leading-tight truncate ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+                            {localizedName}
+                          </div>
+                          <div className={`text-[9px] mt-0.5 line-clamp-1 flex items-center gap-1 ${isSelected ? 'text-slate-200' : 'text-slate-500'}`}>
+                            <span>{icon.category}</span>
+                            {icon.isCustom && (
+                              <span className="px-1 py-0.2 rounded text-[7.5px] font-black uppercase bg-amber-400 text-slate-900">
+                                Firestore
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Check selection badge */}
+                        <div className="absolute top-2 right-2">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                            isSelected ? 'bg-white text-[#0D4D5E] font-black' : 'border border-slate-300'
+                          }`}>
+                            {isSelected && '✓'}
+                          </div>
+                        </div>
+
+                        {/* Custom Icon Delete Button */}
+                        {icon.isCustom && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCustomIcon(icon.id);
+                            }}
+                            title="Elimina da Firestore"
+                            className="absolute bottom-2 right-2 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
             </div>
           </div>
         )}

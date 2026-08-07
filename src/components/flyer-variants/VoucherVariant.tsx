@@ -1,13 +1,16 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { FlyerVariantProps } from './VariantTypes';
-import { DolomitiNordicSkiLogo, DolomitiSkierTrackEmblem } from '../CorporateVectors';
+import { DolomitiNordicSkiLogo, DolomitiSkierTrackEmblem, OFFICIAL_ASSET_PATHS } from '../CorporateVectors';
+import { WireframeIcon } from '../WireframeIcon';
+import { getSportsIconName } from '../../data/sportsIcons';
 
 export const VoucherVariant: React.FC<FlyerVariantProps> = ({
   content,
   plt,
   theme,
   regionLogo,
+  activeSportsIcons = [],
   visibility
 }) => {
   // Format awareness
@@ -121,7 +124,7 @@ export const VoucherVariant: React.FC<FlyerVariantProps> = ({
             {regionLogo && regionLogo.id !== 'dns_central' && (
               <div className="bg-white p-1.5 rounded-xl border border-slate-200 shadow-xs shrink-0 hidden sm:block">
                 <img
-                  src={regionLogo.logoSrc || `https://www.dolomitinordicski.com/images/logos/${regionLogo.id}.png`}
+                  src={regionLogo.logoSrc || OFFICIAL_ASSET_PATHS.logoFarbe}
                   alt={regionLogo.name}
                   className={`${regionLogoSize} object-contain`}
                   onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
@@ -300,17 +303,32 @@ export const VoucherVariant: React.FC<FlyerVariantProps> = ({
               </div>
             )}
 
+            {/* Active Sports & Services Icons Bar */}
+            {activeSportsIcons.length > 0 && (
+              <div className="pt-2 border-t border-slate-200 flex items-center gap-1.5 flex-wrap">
+                {activeSportsIcons.map((icon) => (
+                  <div 
+                    key={icon.id} 
+                    className="p-1 px-2 rounded-lg bg-white border border-slate-200 text-[8.5px] font-black text-slate-800 flex items-center gap-1 shadow-2xs"
+                  >
+                    <WireframeIcon icon={icon} className="w-3 h-3" style={{ color: theme.primaryHex }} />
+                    <span className="truncate max-w-[100px]">{getSportsIconName(icon, content.language || 'it')}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
           </div>
         )}
 
       </div>
 
-      {/* 4. OFFICIAL TRILINGUAL LEGAL DISCLAIMER */}
+      {/* 4. OFFICIAL LEGAL DISCLAIMER (SINGLE-LANGUAGE ONLY) */}
       {visibility.disclaimer && (
-        <div className={`p-2 sm:p-2.5 bg-slate-50 rounded-2xl border border-slate-200 ${isA5 ? 'text-[7.5px]' : isA3 ? 'text-xs' : 'text-[8.5px] sm:text-[9.5px]'} text-slate-600 space-y-0.5 leading-relaxed font-bold shadow-inner shrink-0`}>
-          <p className="line-clamp-1"><strong>DE:</strong> {plt.disclaimerDe}</p>
-          <p className="line-clamp-1"><strong>IT:</strong> {plt.disclaimerIt}</p>
-          <p className="line-clamp-1"><strong>EN:</strong> {plt.disclaimerEn}</p>
+        <div className={`p-2 sm:p-2.5 bg-slate-50 rounded-2xl border border-slate-200 ${isA5 ? 'text-[7.5px]' : isA3 ? 'text-xs' : 'text-[8.5px] sm:text-[9.5px]'} text-slate-600 leading-snug font-bold shadow-inner shrink-0`}>
+          <p className="line-clamp-2">
+            {(content.activeLanguage || content.language) === 'de' ? plt.disclaimerDe : (content.activeLanguage || content.language) === 'en' ? plt.disclaimerEn : plt.disclaimerIt}
+          </p>
         </div>
       )}
 

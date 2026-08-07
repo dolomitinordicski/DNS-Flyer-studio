@@ -14,7 +14,7 @@ export function getInitialTranslations(base: FlyerContent): {
   const existing = base.translations;
   
   const it: MultilingualTextSet = {
-    headerTagline: existing?.it?.headerTagline || base.headerTagline || '',
+    headerTagline: existing?.it?.headerTagline || base.headerTagline || 'DIGITAL PASS',
     badgeText: existing?.it?.badgeText || base.badgeText || '',
     title: existing?.it?.title || base.title || '',
     subtitle: existing?.it?.subtitle || base.subtitle || '',
@@ -26,12 +26,14 @@ export function getInitialTranslations(base: FlyerContent): {
     featuresTitle: existing?.it?.featuresTitle || base.featuresTitle || '',
     ctaText: existing?.it?.ctaText || base.ctaText || '',
     addressInfo: existing?.it?.addressInfo || base.addressInfo || '',
+    holderName: existing?.it?.holderName || base.holderName || 'Mario Rossi',
+    issueDate: existing?.it?.issueDate || base.issueDate || '15.12.2026',
     features: existing?.it?.features || base.features || [],
     priceListTexts: existing?.it?.priceListTexts || base.priceListTexts
   };
 
   const de: MultilingualTextSet = {
-    headerTagline: existing?.de?.headerTagline || (base.headerTagline ? translateToDe(base.headerTagline) : ''),
+    headerTagline: existing?.de?.headerTagline || (base.headerTagline ? translateToDe(base.headerTagline) : 'DIGITAL PASS'),
     badgeText: existing?.de?.badgeText || (base.badgeText ? translateToDe(base.badgeText) : ''),
     title: existing?.de?.title || (base.title ? translateToDe(base.title) : ''),
     subtitle: existing?.de?.subtitle || (base.subtitle ? translateToDe(base.subtitle) : ''),
@@ -43,12 +45,14 @@ export function getInitialTranslations(base: FlyerContent): {
     featuresTitle: existing?.de?.featuresTitle || (base.featuresTitle ? translateToDe(base.featuresTitle) : ''),
     ctaText: existing?.de?.ctaText || (base.ctaText ? translateToDe(base.ctaText) : ''),
     addressInfo: existing?.de?.addressInfo || (base.addressInfo ? translateToDe(base.addressInfo) : ''),
+    holderName: existing?.de?.holderName || base.holderName || 'Max Mustermann',
+    issueDate: existing?.de?.issueDate || base.issueDate || '15.12.2026',
     features: existing?.de?.features || base.features?.map(f => ({ ...f, text: translateToDe(f.text) })) || [],
     priceListTexts: existing?.de?.priceListTexts || base.priceListTexts
   };
 
   const en: MultilingualTextSet = {
-    headerTagline: existing?.en?.headerTagline || (base.headerTagline ? translateToEn(base.headerTagline) : ''),
+    headerTagline: existing?.en?.headerTagline || (base.headerTagline ? translateToEn(base.headerTagline) : 'DIGITAL PASS'),
     badgeText: existing?.en?.badgeText || (base.badgeText ? translateToEn(base.badgeText) : ''),
     title: existing?.en?.title || (base.title ? translateToEn(base.title) : ''),
     subtitle: existing?.en?.subtitle || (base.subtitle ? translateToEn(base.subtitle) : ''),
@@ -60,6 +64,8 @@ export function getInitialTranslations(base: FlyerContent): {
     featuresTitle: existing?.en?.featuresTitle || (base.featuresTitle ? translateToEn(base.featuresTitle) : ''),
     ctaText: existing?.en?.ctaText || (base.ctaText ? translateToEn(base.ctaText) : ''),
     addressInfo: existing?.en?.addressInfo || (base.addressInfo ? translateToEn(base.addressInfo) : ''),
+    holderName: existing?.en?.holderName || base.holderName || 'John Doe',
+    issueDate: existing?.en?.issueDate || base.issueDate || '15.12.2026',
     features: existing?.en?.features || base.features?.map(f => ({ ...f, text: translateToEn(f.text) })) || [],
     priceListTexts: existing?.en?.priceListTexts || base.priceListTexts
   };
@@ -71,13 +77,14 @@ function translateToDe(text: string): string {
   if (!text) return '';
   let res = text;
   const replacements: [RegExp, string][] = [
+    [/ONLINE TICKET • BIGLIETTO DIGITALE • ONLINE-TICKET/gi, 'DIGITAL PASS'],
     [/OFFERTA SPECIALE HOTEL PARTNER/gi, 'SONDERANGEBOT PARTNERHOTEL'],
     [/BIGLIETTO GIORNALIERO UFFICIALE/gi, 'OFFIZIELLES TAGES-TICKET'],
     [/BIGLIETTO SETTIMANALE/gi, 'WOCHENKARTE / TICKET'],
     [/BUONO REGALO UFFICIALE/gi, 'OFFIZIELLER GUTSCHEIN'],
     [/Settimana Bianca Sci di Fondo & Relax/gi, 'Langlauf- & Wellnesswoche Dolomiten'],
     [/BIGLIETTO GIORNALIERO/gi, 'TAGESKARTE LANGLAUF'],
-    [/SETTIMANALE DI AREA/gi, 'GEBIETS-WOCHENKARTE'],
+    [/SETTIMANALE DI AREA/gi, 'AREA WOCHENKARTE'],
     [/SETTIMANALE DOLOMITI NORDICSKI/gi, 'DOLOMITI NORDICSKI WOCHENKARTE'],
     [/VOUCHER ESPERIENZA SCI DI FONDO/gi, 'LANGLAUF ERLEBNIS GUTSCHEIN'],
     [/Soggiorno esclusivo in hotel con Skipass Dolomiti NordicSki incluso e servizi benessere\./gi, 'Exklusiver Hotelaufenthalt inkl. Dolomiti NordicSki Pass und Wellnessbereich.'],
@@ -87,7 +94,7 @@ function translateToDe(text: string): string {
     [/Un regalo speciale per vivere la magia delle piste da fondo sulle Dolomiti UNESCO\./gi, 'Ein besonderes Geschenk für Skilanglauf auf den UNESCO-Dolomiten.'],
     [/Servizi Inclusi nel Pacchetto Hotel:/gi, 'Inkludierte Leistungen des Hotelpakets:'],
     [/Specifiche Biglietto Giornaliero:/gi, 'Spezifikationen Tages-Ticket:'],
-    [/Specifiche Settimanale Singola Area:/gi, 'Spezifikationen Gebiets-Wochenkarte:'],
+    [/Specifiche Settimanale Singola Area:/gi, 'Spezifikationen AREA Wochenkarte:'],
     [/Specifiche Settimanale Carosello 8 Valli:/gi, 'Spezifikationen Karussell-Wochenkarte:'],
     [/Cosa comprende questo Voucher:/gi, 'Inhalt dieses Gutscheins:'],
     [/Prenota la Tua Vacanza Neve Online/gi, 'Buchen Sie Ihren Langlaufurlaub Online'],
@@ -110,6 +117,7 @@ function translateToEn(text: string): string {
   if (!text) return '';
   let res = text;
   const replacements: [RegExp, string][] = [
+    [/ONLINE TICKET • BIGLIETTO DIGITALE • ONLINE-TICKET/gi, 'DIGITAL PASS'],
     [/OFFERTA SPECIALE HOTEL PARTNER/gi, 'SPECIAL PARTNER HOTEL OFFER'],
     [/BIGLIETTO GIORNALIERO UFFICIALE/gi, 'OFFICIAL DAILY SKI TICKET'],
     [/BIGLIETTO SETTIMANALE/gi, 'OFFICIAL WEEKLY SKI PASS'],
@@ -164,6 +172,8 @@ export function getContentForLanguage(content: FlyerContent, lang: LanguageCode)
     featuresTitle: langSet.featuresTitle ?? content.featuresTitle,
     ctaText: langSet.ctaText ?? content.ctaText,
     addressInfo: langSet.addressInfo ?? content.addressInfo,
+    holderName: langSet.holderName ?? content.holderName ?? 'Mario Rossi',
+    issueDate: langSet.issueDate ?? content.issueDate ?? '15.12.2026',
     features: langSet.features ?? content.features,
     priceListTexts: {
       ...content.priceListTexts,

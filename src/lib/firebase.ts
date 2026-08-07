@@ -12,7 +12,7 @@ import {
   Firestore
 } from 'firebase/firestore';
 import rawFirebaseConfig from '../../firebase-applet-config.json';
-import { FlyerContent, FlyerRecord } from '../types';
+import { FlyerContent, FlyerRecord, SportsIcon } from '../types';
 import { INITIAL_FLYER_REGISTRY } from '../data/mockFlyerRegistry';
 
 interface FirebaseAppletConfig {
@@ -330,5 +330,125 @@ export async function deleteFlyerRecordFromFirebase(id: string): Promise<boolean
   saveLocalRegistry(filtered);
   return true;
 }
+
+const CUSTOM_ICONS_COLLECTION = 'custom_icons';
+const LOCAL_CUSTOM_ICONS_KEY = 'dns_custom_sports_icons';
+
+function getLocalCustomIcons(): SportsIcon[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_CUSTOM_ICONS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalCustomIcons(icons: SportsIcon[]) {
+  try {
+    localStorage.setItem(LOCAL_CUSTOM_ICONS_KEY, JSON.stringify(icons));
+  } catch (err) {
+    console.error('LocalStorage write failed for custom icons:', err);
+  }
+}
+
+/**
+ * Load user uploaded custom sports icons from Firestore (or LocalStorage)
+ */
+export async function loadCustomIconsFromFirebase(): Promise<SportsIcon[]> {
+  if (isFirebaseConfigured && db) {
+    try {
+      const colRef = collection(db, CUSTOM_ICONS_COLLECTION);
+      const snapshot = await getDocs(colRef);
+      if (!snapshot.empty) {
+        const results: SportsIcon[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          results.push({
+            id: docSnap.id,
+            name: data.name || 'Icona Personalizzata',
+            nameIt: data.nameIt || data.name || 'Icona Personalizzata',
+            nameDe: data.nameDe || data.name || 'Benutzerdefiniertes Icon',
+            nameEn: data.nameEn || data.name || 'Custom Icon',
+            category: data.category || 'Custom',
+            lucideIconName: data.lucideIconName || 'Sparkles',
+            description: data.description || '',
+            customIconUrl: data.customIconUrl || '',
+            isCustom: true,
+            createdAt: data.createdAt || new Date().toISOString()
+          });
+        });
+        return results;
+      }
+    } catch (err) {
+      console.warn('Firestore custom icons load failed, falling back to local storage:', err);
+    }
+  }
+
+  return getLocalCustomIcons();
+}
+
+/**
+ * Save a new user custom icon to Firestore (or LocalStorage)
+ */
+export async function saveCustomIconToFirebase(icon: Omit<SportsIcon, 'id'> & { id?: string }): Promise<SportsIcon> {
+  const docId = icon.id || `custom_icon_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const nowIso = new Date().toISOString();
+
+  const newIcon: SportsIcon = {
+    id: docId,
+    name: icon.name,
+    nameIt: icon.nameIt || icon.name,
+    nameDe: icon.nameDe || icon.name,
+    nameEn: icon.nameEn || icon.name,
+    category: icon.category || 'Custom',
+    lucideIconName: icon.lucideIconName || 'Sparkles',
+    description: icon.description || 'Icona caricata dall\'utente',
+    customIconUrl: icon.customIconUrl || '',
+    isCustom: true,
+    createdAt: nowIso
+  };
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const ref = doc(db, CUSTOM_ICONS_COLLECTION, docId);
+      await setDoc(ref, {
+        ...newIcon,
+        timestamp: serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.warn('Firestore custom icon save failed, saving to local storage:', err);
+    }
+  }
+
+  const list = getLocalCustomIcons();
+  const existingIdx = list.findIndex(i => i.id === docId);
+  if (existingIdx >= 0) {
+    list[existingIdx] = newIcon;
+  } else {
+    list.unshift(newIcon);
+  }
+  saveLocalCustomIcons(list);
+
+  return newIcon;
+}
+
+/**
+ * Delete a custom icon from Firestore (and LocalStorage)
+ */
+export async function deleteCustomIconFromFirebase(id: string): Promise<boolean> {
+  if (isFirebaseConfigured && db) {
+    try {
+      const ref = doc(db, CUSTOM_ICONS_COLLECTION, id);
+      await deleteDoc(ref);
+    } catch (err) {
+      console.warn('Firestore custom icon delete failed:', err);
+    }
+  }
+
+  const filtered = getLocalCustomIcons().filter(i => i.id !== id);
+  saveLocalCustomIcons(filtered);
+  return true;
+}
+
 
 

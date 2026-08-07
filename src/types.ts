@@ -29,9 +29,18 @@ export interface RegionalLogo {
 export interface SportsIcon {
   id: string;
   name: string;
-  category: 'Nordic Skiing' | 'Services' | 'Accommodation' | 'Events';
+  nameIt?: string;
+  nameDe?: string;
+  nameEn?: string;
+  category: 'Nordic Skiing' | 'Services' | 'Accommodation' | 'Events' | 'Custom';
   lucideIconName: string;
-  description: string;
+  description?: string;
+  descriptionIt?: string;
+  descriptionDe?: string;
+  descriptionEn?: string;
+  customIconUrl?: string;
+  isCustom?: boolean;
+  createdAt?: string;
 }
 
 export type LogoVariantType = 'original' | 'negative' | 'grayscale' | 'skier_track_emblem' | 'horizontal_light' | 'badge_card' | 'none';
@@ -180,6 +189,8 @@ export interface MultilingualTextSet {
   featuresTitle?: string;
   ctaText?: string;
   addressInfo?: string;
+  holderName?: string;
+  issueDate?: string;
   features?: PackageFeature[];
   priceListTexts?: PriceListTexts;
 }
@@ -239,6 +250,8 @@ export interface FlyerContent {
   contactPhone: string;
   websiteUrl: string;
   addressInfo: string;
+  holderName?: string;
+  issueDate?: string;
   
   // Dynamic QR Code
   qrCode: QRCodeConfig;
