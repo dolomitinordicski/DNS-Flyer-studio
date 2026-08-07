@@ -6,6 +6,37 @@ export const LANGUAGE_OPTIONS: { code: LanguageCode; label: string; flag: string
   { code: 'en', label: 'Inglese (EN)', flag: '🇬🇧' }
 ];
 
+export function cleanseObsoleteTerms(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/ONLINE TICKET • BIGLIETTO DIGITALE • ONLINE-TICKET/gi, 'DIGITAL PASS')
+    .replace(/ONLINE TICKET/gi, 'DIGITAL PASS')
+    .replace(/BIGLIETTO DIGITALE/gi, 'DIGITAL PASS')
+    .replace(/Gebietswochenkarte/gi, 'AREA Wochenkarte')
+    .replace(/Gebiets-Wochenkarte/gi, 'AREA Wochenkarte')
+    .replace(/Gebiets Wochenkarte/gi, 'AREA Wochenkarte')
+    .replace(/Spezifikationen Gebiets-Wochenkarte/gi, 'Spezifikationen AREA Wochenkarte');
+}
+
+function cleanTextSet(set: MultilingualTextSet): MultilingualTextSet {
+  return {
+    ...set,
+    headerTagline: cleanseObsoleteTerms(set.headerTagline || 'DIGITAL PASS'),
+    badgeText: cleanseObsoleteTerms(set.badgeText || ''),
+    title: cleanseObsoleteTerms(set.title || ''),
+    subtitle: cleanseObsoleteTerms(set.subtitle || ''),
+    validityPeriod: set.validityPeriod || '2026/27',
+    location: set.location || '',
+    pricePrefix: set.pricePrefix || '',
+    priceSuffix: set.priceSuffix || '',
+    priceNote: cleanseObsoleteTerms(set.priceNote || ''),
+    featuresTitle: cleanseObsoleteTerms(set.featuresTitle || ''),
+    ctaText: cleanseObsoleteTerms(set.ctaText || ''),
+    addressInfo: cleanseObsoleteTerms(set.addressInfo || ''),
+    features: set.features?.map(f => ({ ...f, text: cleanseObsoleteTerms(f.text) })) || []
+  };
+}
+
 export function getInitialTranslations(base: FlyerContent): {
   de: MultilingualTextSet;
   it: MultilingualTextSet;
@@ -13,12 +44,12 @@ export function getInitialTranslations(base: FlyerContent): {
 } {
   const existing = base.translations;
   
-  const it: MultilingualTextSet = {
+  const rawIt: MultilingualTextSet = {
     headerTagline: existing?.it?.headerTagline || base.headerTagline || 'DIGITAL PASS',
     badgeText: existing?.it?.badgeText || base.badgeText || '',
     title: existing?.it?.title || base.title || '',
     subtitle: existing?.it?.subtitle || base.subtitle || '',
-    validityPeriod: existing?.it?.validityPeriod || base.validityPeriod || '',
+    validityPeriod: existing?.it?.validityPeriod || base.validityPeriod || '2026/27',
     location: existing?.it?.location || base.location || '',
     pricePrefix: existing?.it?.pricePrefix || base.pricePrefix || '',
     priceSuffix: existing?.it?.priceSuffix || base.priceSuffix || '',
@@ -32,14 +63,14 @@ export function getInitialTranslations(base: FlyerContent): {
     priceListTexts: existing?.it?.priceListTexts || base.priceListTexts
   };
 
-  const de: MultilingualTextSet = {
+  const rawDe: MultilingualTextSet = {
     headerTagline: existing?.de?.headerTagline || (base.headerTagline ? translateToDe(base.headerTagline) : 'DIGITAL PASS'),
     badgeText: existing?.de?.badgeText || (base.badgeText ? translateToDe(base.badgeText) : ''),
     title: existing?.de?.title || (base.title ? translateToDe(base.title) : ''),
     subtitle: existing?.de?.subtitle || (base.subtitle ? translateToDe(base.subtitle) : ''),
-    validityPeriod: existing?.de?.validityPeriod || base.validityPeriod || '',
+    validityPeriod: existing?.de?.validityPeriod || base.validityPeriod || '2026/27',
     location: existing?.de?.location || (base.location ? translateToDe(base.location) : ''),
-    pricePrefix: existing?.de?.pricePrefix || (base.pricePrefix === 'DA' ? 'AB' : base.pricePrefix === 'PREZZO' ? 'PREIS' : base.pricePrefix),
+    pricePrefix: existing?.de?.pricePrefix || (base.pricePrefix === 'DA' ? 'AB' : base.pricePrefix === 'PREZZO' ? 'PREIS' : base.pricePrefix === 'TARIFFA' ? 'TARIF' : base.pricePrefix),
     priceSuffix: existing?.de?.priceSuffix || (base.priceSuffix ? translateToDe(base.priceSuffix) : ''),
     priceNote: existing?.de?.priceNote || (base.priceNote ? translateToDe(base.priceNote) : ''),
     featuresTitle: existing?.de?.featuresTitle || (base.featuresTitle ? translateToDe(base.featuresTitle) : ''),
@@ -51,14 +82,14 @@ export function getInitialTranslations(base: FlyerContent): {
     priceListTexts: existing?.de?.priceListTexts || base.priceListTexts
   };
 
-  const en: MultilingualTextSet = {
+  const rawEn: MultilingualTextSet = {
     headerTagline: existing?.en?.headerTagline || (base.headerTagline ? translateToEn(base.headerTagline) : 'DIGITAL PASS'),
     badgeText: existing?.en?.badgeText || (base.badgeText ? translateToEn(base.badgeText) : ''),
     title: existing?.en?.title || (base.title ? translateToEn(base.title) : ''),
     subtitle: existing?.en?.subtitle || (base.subtitle ? translateToEn(base.subtitle) : ''),
-    validityPeriod: existing?.en?.validityPeriod || base.validityPeriod || '',
+    validityPeriod: existing?.en?.validityPeriod || base.validityPeriod || '2026/27',
     location: existing?.en?.location || (base.location ? translateToEn(base.location) : ''),
-    pricePrefix: existing?.en?.pricePrefix || (base.pricePrefix === 'DA' ? 'FROM' : base.pricePrefix === 'PREZZO' ? 'PRICE' : base.pricePrefix),
+    pricePrefix: existing?.en?.pricePrefix || (base.pricePrefix === 'DA' ? 'FROM' : base.pricePrefix === 'PREZZO' ? 'PRICE' : base.pricePrefix === 'TARIFFA' ? 'RATE' : base.pricePrefix),
     priceSuffix: existing?.en?.priceSuffix || (base.priceSuffix ? translateToEn(base.priceSuffix) : ''),
     priceNote: existing?.en?.priceNote || (base.priceNote ? translateToEn(base.priceNote) : ''),
     featuresTitle: existing?.en?.featuresTitle || (base.featuresTitle ? translateToEn(base.featuresTitle) : ''),
@@ -70,16 +101,22 @@ export function getInitialTranslations(base: FlyerContent): {
     priceListTexts: existing?.en?.priceListTexts || base.priceListTexts
   };
 
-  return { de, it, en };
+  return {
+    it: cleanTextSet(rawIt),
+    de: cleanTextSet(rawDe),
+    en: cleanTextSet(rawEn)
+  };
 }
 
 function translateToDe(text: string): string {
   if (!text) return '';
-  let res = text;
+  let res = cleanseObsoleteTerms(text);
   const replacements: [RegExp, string][] = [
     [/ONLINE TICKET • BIGLIETTO DIGITALE • ONLINE-TICKET/gi, 'DIGITAL PASS'],
     [/OFFERTA SPECIALE HOTEL PARTNER/gi, 'SONDERANGEBOT PARTNERHOTEL'],
     [/BIGLIETTO GIORNALIERO UFFICIALE/gi, 'OFFIZIELLES TAGES-TICKET'],
+    [/BIGLIETTO SETTIMANALE AREA 7 GIORNI/gi, 'OFFIZIELLE AREA WOCHENKARTE 7 TAGE'],
+    [/PASS CAROSELLO DOLOMITI NORDICSKI 900\+ KM/gi, 'DOLOMITI NORDICSKI KARUSSELL-PASS 900+ KM'],
     [/BIGLIETTO SETTIMANALE/gi, 'WOCHENKARTE / TICKET'],
     [/BUONO REGALO UFFICIALE/gi, 'OFFIZIELLER GUTSCHEIN'],
     [/Settimana Bianca Sci di Fondo & Relax/gi, 'Langlauf- & Wellnesswoche Dolomiten'],
@@ -110,16 +147,18 @@ function translateToDe(text: string): string {
   for (const [pattern, sub] of replacements) {
     res = res.replace(pattern, sub);
   }
-  return res;
+  return cleanseObsoleteTerms(res);
 }
 
 function translateToEn(text: string): string {
   if (!text) return '';
-  let res = text;
+  let res = cleanseObsoleteTerms(text);
   const replacements: [RegExp, string][] = [
     [/ONLINE TICKET • BIGLIETTO DIGITALE • ONLINE-TICKET/gi, 'DIGITAL PASS'],
     [/OFFERTA SPECIALE HOTEL PARTNER/gi, 'SPECIAL PARTNER HOTEL OFFER'],
     [/BIGLIETTO GIORNALIERO UFFICIALE/gi, 'OFFICIAL DAILY SKI TICKET'],
+    [/BIGLIETTO SETTIMANALE AREA 7 GIORNI/gi, 'OFFICIAL 7-DAY AREA WEEKLY PASS'],
+    [/PASS CAROSELLO DOLOMITI NORDICSKI 900\+ KM/gi, 'DOLOMITI NORDICSKI CAROUSEL PASS 900+ KM'],
     [/BIGLIETTO SETTIMANALE/gi, 'OFFICIAL WEEKLY SKI PASS'],
     [/BUONO REGALO UFFICIALE/gi, 'OFFICIAL GIFT VOUCHER'],
     [/Settimana Bianca Sci di Fondo & Relax/gi, 'Cross-Country Ski & Wellness Week'],
@@ -150,28 +189,28 @@ function translateToEn(text: string): string {
   for (const [pattern, sub] of replacements) {
     res = res.replace(pattern, sub);
   }
-  return res;
+  return cleanseObsoleteTerms(res);
 }
 
 export function getContentForLanguage(content: FlyerContent, lang: LanguageCode): FlyerContent {
-  const translations = content.translations || getInitialTranslations(content);
+  const translations = getInitialTranslations(content);
   const langSet = translations[lang] || translations['it'] || {};
 
   return {
     ...content,
     activeLanguage: lang,
-    headerTagline: langSet.headerTagline ?? content.headerTagline,
-    badgeText: langSet.badgeText ?? content.badgeText,
-    title: langSet.title ?? content.title,
-    subtitle: langSet.subtitle ?? content.subtitle,
-    validityPeriod: langSet.validityPeriod ?? content.validityPeriod,
+    headerTagline: cleanseObsoleteTerms(langSet.headerTagline || content.headerTagline || 'DIGITAL PASS'),
+    badgeText: cleanseObsoleteTerms(langSet.badgeText ?? content.badgeText),
+    title: cleanseObsoleteTerms(langSet.title ?? content.title),
+    subtitle: cleanseObsoleteTerms(langSet.subtitle ?? content.subtitle),
+    validityPeriod: langSet.validityPeriod ?? content.validityPeriod ?? '2026/27',
     location: langSet.location ?? content.location,
     pricePrefix: langSet.pricePrefix ?? content.pricePrefix,
     priceSuffix: langSet.priceSuffix ?? content.priceSuffix,
-    priceNote: langSet.priceNote ?? content.priceNote,
-    featuresTitle: langSet.featuresTitle ?? content.featuresTitle,
-    ctaText: langSet.ctaText ?? content.ctaText,
-    addressInfo: langSet.addressInfo ?? content.addressInfo,
+    priceNote: cleanseObsoleteTerms(langSet.priceNote ?? content.priceNote),
+    featuresTitle: cleanseObsoleteTerms(langSet.featuresTitle ?? content.featuresTitle),
+    ctaText: cleanseObsoleteTerms(langSet.ctaText ?? content.ctaText),
+    addressInfo: cleanseObsoleteTerms(langSet.addressInfo ?? content.addressInfo),
     holderName: langSet.holderName ?? content.holderName ?? 'Mario Rossi',
     issueDate: langSet.issueDate ?? content.issueDate ?? '15.12.2026',
     features: langSet.features ?? content.features,

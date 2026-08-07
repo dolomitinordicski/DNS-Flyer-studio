@@ -1096,33 +1096,8 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
 
           const handleSelectLanguage = (lang: LanguageCode) => {
             if (isPriceTable) return;
-            const allTrans = {
-              ...getInitialTranslations(content),
-              ...content.translations
-            };
-            const targetLangData = allTrans[lang] || {};
-
-            onChangeContent({
-              activeLanguage: lang,
-              translations: allTrans,
-              headerTagline: targetLangData.headerTagline ?? content.headerTagline,
-              badgeText: targetLangData.badgeText ?? content.badgeText,
-              title: targetLangData.title ?? content.title,
-              subtitle: targetLangData.subtitle ?? content.subtitle,
-              validityPeriod: targetLangData.validityPeriod ?? content.validityPeriod,
-              location: targetLangData.location ?? content.location,
-              pricePrefix: targetLangData.pricePrefix ?? content.pricePrefix,
-              priceSuffix: targetLangData.priceSuffix ?? content.priceSuffix,
-              priceNote: targetLangData.priceNote ?? content.priceNote,
-              featuresTitle: targetLangData.featuresTitle ?? content.featuresTitle,
-              ctaText: targetLangData.ctaText ?? content.ctaText,
-              addressInfo: targetLangData.addressInfo ?? content.addressInfo,
-              features: targetLangData.features ?? content.features,
-              priceListTexts: {
-                ...content.priceListTexts,
-                ...targetLangData.priceListTexts
-              }
-            });
+            const updated = getContentForLanguage(content, lang);
+            onChangeContent(updated);
           };
 
           const updateLangField = (field: keyof MultilingualTextSet, value: any) => {

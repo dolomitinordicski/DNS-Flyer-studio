@@ -40,6 +40,9 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
     ? 'TICKET VALIDITY' 
     : 'VALIDITÀ DEL BIGLIETTO';
 
+  const statusText = lang === 'de' ? 'GÜLTIG' : lang === 'en' ? 'VALID' : 'VALIDO';
+  const issuerLabel = lang === 'de' ? 'AUSSTELLER' : lang === 'en' ? 'ISSUER' : 'EMETTITORE';
+
   // Single-language disclaimer selection
   const disclaimerText = lang === 'de' 
     ? plt.disclaimerDe 
@@ -89,18 +92,19 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              {regionLogo && regionLogo.id !== 'dns_central' && (
-                <div className="bg-white/90 p-1.5 rounded-xl shadow-xs border border-white/20 shrink-0">
-                  <img
-                    src={regionLogo.logoSrc || OFFICIAL_ASSET_PATHS.logoFarbe}
-                    alt={regionLogo.name}
-                    className="h-8 sm:h-10 object-contain max-w-[80px]"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
+              <div className="bg-white/90 p-1.5 rounded-xl shadow-xs border border-white/20 shrink-0 flex items-center justify-center">
+                <img
+                  src={regionLogo?.logoSrc || OFFICIAL_ASSET_PATHS.logoFarbe}
+                  alt={regionLogo?.name || 'Dolomiti NordicSki'}
+                  className="h-8 sm:h-10 object-contain max-w-[85px]"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (target.src !== OFFICIAL_ASSET_PATHS.logoFarbe) {
+                      target.src = OFFICIAL_ASSET_PATHS.logoFarbe;
+                    }
+                  }}
+                />
+              </div>
 
               <DolomitiNordicSkiLogo 
                 variant="horizontal_light" 
@@ -295,7 +299,7 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
                 </div>
                 <div className="flex justify-between pb-1 border-b border-slate-200">
                   <span className="text-slate-500">Status:</span>
-                  <span className="font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">VALID</span>
+                  <span className="font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">{statusText}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Help / Contact:</span>
@@ -323,7 +327,7 @@ export const OnlineTicketVariant: React.FC<FlyerVariantProps> = ({
       {/* 5. FOOTER (REGIONAL ISSUER CONTACTS) */}
       {visibility.footer && (
         <div className="pt-1.5 border-t flex items-center justify-between text-[8.5px] sm:text-[9.5px] text-slate-500 font-black uppercase tracking-widest shrink-0" style={{ borderColor: `${theme.primaryHex}30` }}>
-          <div className="truncate min-w-0">EMETTITORE: {regionLogo?.regionName || 'Regional Area Partner'}</div>
+          <div className="truncate min-w-0">{issuerLabel}: {regionLogo?.regionName || 'Regional Area Partner'}</div>
           <div className="font-black shrink-0 ml-2" style={{ color: theme.primaryHex }}>{content.websiteUrl || 'www.dolomitinordicski.com'}</div>
         </div>
       )}
